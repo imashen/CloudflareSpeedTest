@@ -39,5 +39,5 @@ jobs:
         context: .
         push: true
         tags: |
-          imashen/CloudflareSpeedTest:latest
+          imashen/cloudflarespeedtest:latest
         platforms: linux/amd64,linux/arm64
