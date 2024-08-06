@@ -40,63 +40,66 @@ update_dns_record() {
     curl -s -X POST -d "login_token=$dnspod_token&format=json&domain=$dnspod_domain&record_id=$record_id&sub_domain=$dnspod_record&record_type=$record_type&record_line=默认&value=$ip_address" "$dnspod_api_url/Record.Modify"
 }
 
+# 主循环
+while true; do
+  # 运行 CloudflareST v4
+  ./CloudflareST -f ip.txt -n 500 -o result4.csv
 
-# 运行 CloudflareST v4
-./CloudflareST -f ip.txt -n 500 -o result4.csv
+  # 读取 CSV 文件并提取优选 IPv4 地址
+  preferred_ipv4=$(awk -F, 'NR==2 {print $1}' result4.csv)
 
-# 读取 CSV 文件并提取优选 IPv4 地址
-preferred_ipv4=$(awk -F, 'NR==2 {print $1}' result4.csv)
-
-# 检查是否获取到了 IPv4 地址
-if [ -z "$preferred_ipv4" ]; then
-  echo "Failed to get the preferred IPv4 address."
-else
-  echo "BETTER IPv4: $preferred_ipv4"
-
-  # 获取 IPv4 记录 ID
-  ipv4_record_id=$(get_record_id "A")
-
-  if [ -n "$ipv4_record_id" ]; then
-    # 更新 IPv4 记录
-    update_dns_record "$ipv4_record_id" "A" "$preferred_ipv4"
-    echo "Updated DNSPod record with IPv4: $preferred_ipv4"
+  # 检查是否获取到了 IPv4 地址
+  if [ -z "$preferred_ipv4" ]; then
+    echo "Failed to get the preferred IPv4 address."
   else
-    # 创建 IPv4 记录
-    new_ipv4_record_id=$(create_dns_record "A" "$preferred_ipv4")
-    if [ -n "$new_ipv4_record_id" ]; then
-      echo "Created DNSPod record with IPv4: $preferred_ipv4"
+    echo "BETTER IPv4: $preferred_ipv4"
+
+    # 获取 IPv4 记录 ID
+    ipv4_record_id=$(get_record_id "A")
+
+    if [ -n "$ipv4_record_id" ]; then
+      # 更新 IPv4 记录
+      update_dns_record "$ipv4_record_id" "A" "$preferred_ipv4"
+      echo "Updated DNSPod record with IPv4: $preferred_ipv4"
     else
-      echo "Failed to create DNSPod record with IPv4."
+      # 创建 IPv4 记录
+      new_ipv4_record_id=$(create_dns_record "A" "$preferred_ipv4")
+      if [ -n "$new_ipv4_record_id" ]; then
+        echo "Created DNSPod record with IPv4: $preferred_ipv4"
+      else
+        echo "Failed to create DNSPod record with IPv4."
+      fi
     fi
   fi
-fi
 
-# 运行 CloudflareST v6
-./CloudflareST -f ipv6.txt -n 500 -o result6.csv
+  # 运行 CloudflareST v6
+  ./CloudflareST -f ipv6.txt -n 500 -o result6.csv
 
-# 读取 CSV 文件并提取优选 IPv6 地址
-preferred_ipv6=$(awk -F, 'NR==2 {print $1}' result6.csv)
+  # 读取 CSV 文件并提取优选 IPv6 地址
+  preferred_ipv6=$(awk -F, 'NR==2 {print $1}' result6.csv)
 
-# 检查是否获取到了 IPv6 地址
-if [ -z "$preferred_ipv6" ]; then
-  echo "Failed to get the preferred IPv6 address."
-else
-  echo "BETTER IPv6: $preferred_ipv6"
-
-  # 获取 IPv6 记录 ID
-  ipv6_record_id=$(get_record_id "AAAA")
-
-  if [ -n "$ipv6_record_id" ]; then
-    # 更新 IPv6 记录
-    update_dns_record "$ipv6_record_id" "AAAA" "$preferred_ipv6"
-    echo "Updated DNSPod record with IPv6: $preferred_ipv6"
+  # 检查是否获取到了 IPv6 地址
+  if [ -z "$preferred_ipv6" ]; then
+    echo "Failed to get the preferred IPv6 address."
   else
-    # 创建 IPv6 记录
-    new_ipv6_record_id=$(create_dns_record "AAAA" "$preferred_ipv6")
-    if [ -n "$new_ipv6_record_id" ]; then
-      echo "Created DNSPod record with IPv6: $preferred_ipv6"
+    echo "BETTER IPv6: $preferred_ipv6"
+
+    # 获取 IPv6 记录 ID
+    ipv6_record_id=$(get_record_id "AAAA")
+
+    if [ -n "$ipv6_record_id" ]; then
+      # 更新 IPv6 记录
+      update_dns_record "$ipv6_record_id" "AAAA" "$preferred_ipv6"
+      echo "Updated DNSPod record with IPv6: $preferred_ipv6"
     else
-      echo "Failed to create DNSPod record with IPv6."
+      # 创建 IPv6 记录
+      new_ipv6_record_id=$(create_dns_record "AAAA" "$preferred_ipv6")
+      if [ -n "$new_ipv6_record_id" ]; then
+        echo "Created DNSPod record with IPv6: $preferred_ipv6"
+      else
+        echo "Failed to create DNSPod record with IPv6."
+      fi
     fi
   fi
-fi
+  sleep ${UPDATE_INTERVAL}
+done

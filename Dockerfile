@@ -50,4 +50,4 @@ RUN chmod +x dnspod.sh
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD /usr/local/bin/health_check.sh
 
 # 启动脚本，包含循环和睡眠
-CMD ["sh", "-c", "/app/dnspod.sh && while true; do /app/dnspod.sh; sleep ${UPDATE_INTERVAL}; done"]
+CMD ["sh", "-c", "/app/dnspod.sh"]
