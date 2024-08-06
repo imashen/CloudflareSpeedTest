@@ -48,5 +48,5 @@ RUN echo "*/${UPDATE_INTERVAL} * * * * /app/dnspod.sh >> /var/log/cron.log 2>&1"
 # 创建日志文件以使cron可以运行
 RUN touch /var/log/cron.log
 
-# 启动 cron 服务
-CMD ["cron", "-f"]
+# 启动 cron 服务并查看日志
+CMD ["sh", "-c", "cron -f & tail -f /var/log/cron.log"]
