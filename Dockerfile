@@ -35,6 +35,8 @@ COPY --from=builder /app/CloudflareST .
 
 # 复制本地的 shell 脚本
 COPY dnspod.sh .
+COPY ip.txt .
+COPY ipv6.txt .
 
 # 使脚本可执行
 RUN chmod +x dnspod.sh
