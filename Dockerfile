@@ -39,14 +39,7 @@ COPY dnspod.sh .
 # 使脚本可执行
 RUN chmod +x dnspod.sh
 
-# 添加定时任务，使用环境变量来设置间隔时间
-ENV UPDATE_INTERVAL=30
-
-# 设置定时任务
-RUN echo "*/${UPDATE_INTERVAL} * * * * /app/dnspod.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/dnspod-cron
-
-# 创建日志文件以使cron可以运行
-RUN touch /var/log/cron.log
+ENV UPDATE_INTERVAL=1800
 
 # 启动 cron 服务并查看日志
-CMD ["sh", "-c", "cron -f & tail -f /var/log/cron.log"]
+CMD ["./dnspod.sh"]
