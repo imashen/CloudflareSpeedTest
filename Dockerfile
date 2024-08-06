@@ -37,11 +37,17 @@ COPY --from=builder /app/CloudflareST .
 COPY dnspod.sh .
 COPY ip.txt .
 COPY ipv6.txt .
+COPY health_check.sh /usr/local/bin/health_check.sh
 
-# 使脚本可执行
-RUN chmod +x dnspod.sh
-
+# 设置环境变量
 ENV UPDATE_INTERVAL=1800
 
-# 启动 cron 服务并查看日志
-CMD ["./dnspod.sh"]
+# 设置权限
+RUN chmod +x /usr/local/bin/health_check.sh
+RUN chmod +x dnspod.sh
+
+# 设置健康检查
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD /usr/local/bin/health_check.sh
+
+# 启动脚本，包含循环和睡眠
+CMD ["sh", "-c", "/app/dnspod.sh && while true; do /app/dnspod.sh; sleep ${UPDATE_INTERVAL}; done"]
