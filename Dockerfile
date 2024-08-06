@@ -24,6 +24,9 @@ RUN echo "Building version $VERSION" && \
 # 第二阶段：运行应用
 FROM debian:bookworm-slim
 
+# 安装 curl 和 cron
+RUN apt-get update && apt-get install -y curl cron
+
 # 设置工作目录
 WORKDIR /app
 
