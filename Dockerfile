@@ -25,7 +25,7 @@ RUN echo "Building version $VERSION" && \
 FROM debian:bookworm-slim
 
 # 安装 curl 和 cron
-RUN apt-get update && apt-get install -y curl jq
+RUN apt-get update && apt-get install -y curl jq procps
 
 # 设置工作目录
 WORKDIR /app
