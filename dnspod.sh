@@ -7,7 +7,7 @@ rm -f result4.csv result6.csv
 dnspod_token="${API_TOKEN}"
 dnspod_domain="${DOMAIN}"
 dnspod_record="${SUB_DOMAIN}"
-
+update_interval="${UPDATE_INTERVAL}"
 # DNSPod API URL
 dnspod_api_url="https://dnsapi.cn"
 
@@ -101,5 +101,6 @@ while true; do
       fi
     fi
   fi
+  echo "$update_interval 后继续更新 DNS 记录..."
   sleep ${UPDATE_INTERVAL}
 done
